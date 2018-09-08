@@ -5,7 +5,7 @@ using SimpleSurvey.Models;
 
 namespace SimpleSurvey.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/survey")]
     [ApiController]
     public class SurveyController : ControllerBase
     {
@@ -20,6 +20,25 @@ namespace SimpleSurvey.Controllers
                 _context.SurveyItems.Add(new SurveyItem { Name = "Survey 1" });
                 _context.SaveChanges();
             }
+        }
+
+        [HttpGet]
+        public ActionResult<List<SurveyItem>> GetAllSurveys()
+        {
+            return _context.SurveyItems.ToList();
+        }
+
+        [HttpGet("{id}", Name = "GetSurvey")]
+        public ActionResult<SurveyItem> GetById(int id)
+        {
+            var item = _context.SurveyItems.Find(id);
+
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            return item;
         }
     }
 }
