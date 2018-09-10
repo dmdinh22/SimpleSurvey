@@ -10,6 +10,7 @@ namespace SimpleSurvey.Models
 
         [Required]
         public SurveyDefinitionModel SurveyDefinitionModel { get; set; }
+
         // We can extend to be able to add users in the future if needed
         // public string userName;
     }

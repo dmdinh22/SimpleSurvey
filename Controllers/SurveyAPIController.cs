@@ -11,14 +11,13 @@ namespace SimpleSurvey.Controllers
     [ApiController]
     public class SurveyAPIController : ControllerBase
     {
-        //private StorageProxy proxy;
+        private StorageProxy _storageProxy;
         private readonly SurveyContext _context;
 
         public SurveyAPIController(SurveyContext context)
         {
             _context = context;
-            //_survey = survey;
-            //this.proxy = new StorageProxy(context);
+            this._storageProxy = new StorageProxy(context);
         }
 
         // Creating a survey
@@ -38,8 +37,7 @@ namespace SimpleSurvey.Controllers
                 // add multiple records with AddRange() instead of looping through list
                 surveyData.Questions.AddRange(payload.Questions);
 
-                _context.SurveyTemplates.Add(surveyData);
-                _context.SaveChanges();
+                this._storageProxy.createSurveyDef(surveyData);
 
                 return Ok(surveyData);
             }
@@ -58,9 +56,7 @@ namespace SimpleSurvey.Controllers
         {
             try
             {
-                var surveys = _context.SurveyTemplates
-                    .Include(survey => survey.Questions)
-                    .ToList();
+                var surveys = this._storageProxy.getAllSurveyDefs();
 
                 return Ok(surveys);
             }
@@ -79,14 +75,8 @@ namespace SimpleSurvey.Controllers
         {
             try
             {
-                // get survey by id
-                var survey = _context.SurveyTemplates.Find(id);
-
-                // get questions for this survey
-                // weird EF Core, have to invoke these before surveyTemplates can link them
-                _context.Questions.ToList();
-
-                //var survey = this.proxy.getSurvey(id);
+                // call storage _storageProxy and set it to a local var
+                var survey = this._storageProxy.getSurveyDefById(id);
 
                 if (survey == null)
                 {
@@ -233,7 +223,7 @@ namespace SimpleSurvey.Controllers
                 // add multiple records with AddRange instead of looping through
                 takenSurvey.SurveyDefinitionModel.Questions.AddRange(payload.Questions);
 
-                //return this.proxy.CreateSurveyDefinition();
+                //return this._storageProxy.CreateSurveyDefinition();
                 _context.TakenSurveys.Add(takenSurvey);
                 _context.SaveChanges();
 
