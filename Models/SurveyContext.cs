@@ -9,8 +9,8 @@ namespace SimpleSurvey.Models
 
         }
 
-        public DbSet<SurveyDefinition> SurveyTemplates { get; set; }
-        public DbSet<QuestionDefinition> Questions { get; set; }
-        public DbSet<TakenSurvey> TakenSurveys { get; set; }
+        public DbSet<SurveyDefinitionModel> SurveyTemplates { get; set; }
+        public DbSet<QuestionModel> Questions { get; set; }
+        public DbSet<TakenSurveyModel> TakenSurveys { get; set; }
     }
 }

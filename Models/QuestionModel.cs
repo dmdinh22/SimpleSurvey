@@ -1,6 +1,6 @@
 namespace SimpleSurvey.Models
 {
-	public class QuestionDefinition
+	public class QuestionModel
 	{
 		public int Id { get; set; } // PK
 		public string QuestionText { get; set; }

@@ -24,15 +24,15 @@ namespace SimpleSurvey.Controllers
         // Creating a survey
         [HttpPost]
         [Route("create")]
-        public IActionResult CreateSurvey(SurveyDefinition payload)
+        public IActionResult CreateSurvey(SurveyDefinitionModel payload)
         {
             try
             {
-                var surveyData = new SurveyDefinition
+                var surveyData = new SurveyDefinitionModel
                 {
                     Id = payload.Id,
                     Name = payload.Name,
-                    Questions = new List<QuestionDefinition>()
+                    Questions = new List<QuestionModel>()
                 };
 
                 // add multiple records with AddRange() instead of looping through list
@@ -54,7 +54,7 @@ namespace SimpleSurvey.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<SurveyDefinition>> GetAllSurveyResults()
+        public ActionResult<List<SurveyDefinitionModel>> GetAllSurveyResults()
         {
             try
             {
@@ -75,7 +75,7 @@ namespace SimpleSurvey.Controllers
         #region Get Surveys
         //get survey template by id
         [HttpGet("id/{id}", Name = "GetSurveyTemplateById")]
-        public ActionResult<SurveyDefinition> GetSurveyTemplateById(int id)
+        public ActionResult<SurveyDefinitionModel> GetSurveyTemplateById(int id)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace SimpleSurvey.Controllers
 
         // get survey template by name
         [HttpGet("name/{name}", Name = "GetSurveyTemplateByName")]
-        public ActionResult<SurveyDefinition> GetSurveyTemplateByName(string name)
+        public ActionResult<SurveyDefinitionModel> GetSurveyTemplateByName(string name)
         {
             try
             {
@@ -133,14 +133,15 @@ namespace SimpleSurvey.Controllers
         #region Get Taken Surveys
 
         // Getting Results of a Survey
-        //   get surveyResults by name - sends most recent userTakenSurvey to client 
+        //   get surveyResults by name - sends most recent user TakenSurveyModel to client 
         //   because we don't have a user, it's harder to manage the taken surveys
         [HttpGet("taken/id/{id}", Name = "GetTakenSurveyById")]
-        public ActionResult<TakenSurvey> GetTakenSurveyById(int id)
+        public ActionResult<TakenSurveyModel> GetTakenSurveyById(int id)
         {
 
             // this is the unique id for the taken survey (not related to template id)
             var takenSurveyId = id;
+
             try
             {
                 // get survey by id
@@ -172,7 +173,7 @@ namespace SimpleSurvey.Controllers
         }
 
         [HttpGet("taken/id/{id}", Name = "GetTakenSurveyByTemplateId")]
-        public ActionResult<TakenSurvey> GetTakenSurveyByTemplateId(int templateid)
+        public ActionResult<TakenSurveyModel> GetTakenSurveyByTemplateId(int templateid)
         {
             // get survey by id
             var surveys = _context.TakenSurveys;
@@ -182,9 +183,9 @@ namespace SimpleSurvey.Controllers
         }
 
         // Getting Results of a Survey (most recent survey by that name)
-        //   get surveyResults by name - sends most recent userTakenSurvey to client 
+        //   get surveyResults by name - sends most recent user TakenSurveyModel to client 
         [HttpGet("taken/name/{name}", Name = "GetTakenSurveyByName")]
-        public ActionResult<TakenSurvey> GetTakenSurveyByName(string name)
+        public ActionResult<TakenSurveyModel> GetTakenSurveyByName(string name)
         {
             try
             { // get survey by id
@@ -210,17 +211,17 @@ namespace SimpleSurvey.Controllers
 
         // Insert taken survey into db
         [HttpPost]
-        public IActionResult TakeSurvey(SurveyDefinition payload)
+        public IActionResult TakeSurvey(SurveyDefinitionModel payload)
         {
             try
             {
-                var takenSurvey = new TakenSurvey();
+                var takenSurvey = new TakenSurveyModel();
 
-                takenSurvey.surveyDefinition = new SurveyDefinition
+                takenSurvey.SurveyDefinitionModel = new SurveyDefinitionModel
                 {
                     Id = payload.Id,
                     Name = payload.Name,
-                    Questions = new List<QuestionDefinition>()
+                    Questions = new List<QuestionModel>()
                 };
 
                 // do a null check for answers
@@ -230,7 +231,7 @@ namespace SimpleSurvey.Controllers
                 }
 
                 // add multiple records with AddRange instead of looping through
-                takenSurvey.surveyDefinition.Questions.AddRange(payload.Questions);
+                takenSurvey.SurveyDefinitionModel.Questions.AddRange(payload.Questions);
 
                 //return this.proxy.CreateSurveyDefinition();
                 _context.TakenSurveys.Add(takenSurvey);
