@@ -1,22 +1,18 @@
 namespace SimpleSurvey.Models
 {
-    public class QuestionDefinition
-    {
-        public int Id { get; set; } // PK
-        public string QuestionText { get; set; }
-        public bool? Answer { get; set; }
-    }
-
+	public class QuestionDefinition
+	{
+		public int Id { get; set; } // PK
+		public string QuestionText { get; set; }
+		public bool? Answer { get; set; }
+	}
 }
 // questionDefiniton
-// id - PK
-// string QuestionText
-// boolean? answer
 
 /*
-
+TEST JSON OBJ
 {
-    "Name": "Survey 3",
+    "Name": "Survey",
     "Questions": 
     [
     	{

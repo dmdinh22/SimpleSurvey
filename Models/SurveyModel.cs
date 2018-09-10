@@ -3,43 +3,34 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SimpleSurvey.Models
 {
-  // object HAS A ... (preferred)
-  // object Is A ... 
-  public interface ISurvey
-  {
-    SurveyDefinition getSurvey();
-  }
 
   public class SurveyDefinition
   {
-    [Key]
+    [Key, Required]
     public int Id { get; set; } // PK
+    [Required]
     public string Name { get; set; }
+
+    [Required]
     public List<QuestionDefinition> Questions { get; set; }
   }
 
-  public class Survey : ISurvey
+  public class Survey
   {
-    private SurveyDefinition surveyDefinition;
-
-    public SurveyDefinition getSurvey()
-    {
-      return surveyDefinition;
-    }
+    [Required]
+    private SurveyDefinition surveyDefinition { get; set; }
   }
 
-  public class TakenSurvey : ISurvey
+  public class TakenSurvey
   {
-    public int ID { get; set; }
+    [Required]
+    public int Id { get; set; }
     public string Name { get; set; }
-    private SurveyDefinition surveyDefinition;
-    // we could add users here in the future
-    // public string userName;
 
-    public SurveyDefinition getSurvey()
-    {
-      return surveyDefinition;
-    }
+    [Required]
+    public SurveyDefinition surveyDefinition { get; set; }
+    // We can extend to be able to add users in the future if needed
+    // public string userName;
 
   }
 }
