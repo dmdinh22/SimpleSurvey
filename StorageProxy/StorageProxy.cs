@@ -12,7 +12,7 @@ public class StorageProxy
     dbContext = context;
   }
 
-  public void createSurveyDef(SurveyDefinitionModel surveyData)
+  public void CreateSurveyDef(SurveyDefinitionModel surveyData)
   {
     dbContext.SurveyTemplates.Add(surveyData);
     dbContext.SaveChanges();
@@ -20,7 +20,7 @@ public class StorageProxy
     return;
   }
 
-  public List<SurveyDefinitionModel> getAllSurveyDefs()
+  public List<SurveyDefinitionModel> GetAllSurveyDefs()
   {
     var surveys = dbContext.SurveyTemplates
       .Include(survey => survey.Questions)
@@ -29,7 +29,7 @@ public class StorageProxy
     return surveys;
   }
 
-  public SurveyDefinitionModel getSurveyDefById(int surveyId)
+  public SurveyDefinitionModel GetSurveyDefById(int surveyId)
   {
 
     // get survey by id
@@ -42,24 +42,50 @@ public class StorageProxy
     return survey;
   }
 
-  // public Survey getTakenSurveyByName(string surveyName)
-  // {
-  //   // return latest one by name
-  //   return context.TakenSurveyItems.find(surveyName).asc().first();
-  // }
-  // public Survey createSurveyDefinition(Survey survey)
-  // {
-  //   // create uuid
+  public SurveyDefinitionModel GetSurveyDefByName(string surveyName)
+  {
 
-  //   // if _context == null, create
+    // get survey by name
+    var survey = dbContext.SurveyTemplates.LastOrDefault(s => s.Name.ToLower() == surveyName.ToLower());
+    // get questions for this survey - EF core weirdness
+    dbContext.Questions.ToList();
 
-  //   _context.SurveyItems.Add(survey);
-  //   _context.SaveChanges();
-  // }
+    return survey;
+  }
 
-  // public Survey saveSurvey(Survey survey)
-  // {
-  //   _context.TakenSurveyItems.Add(survey);
-  //   _context.SaveChanges();
-  // }
+  public TakenSurveyModel GetTakenSurveyById(int surveyId)
+  {
+    // get survey by name - latest one by name
+    var survey = dbContext.TakenSurveys.Find(surveyId);
+    // get questions for this survey
+    dbContext.Questions.ToList();
+
+    return survey;
+  }
+
+  public TakenSurveyModel GetTakenSurveyByName(string surveyName)
+  {
+    // get survey by name - latest one by name
+    var survey = dbContext.TakenSurveys.LastOrDefault(s => s.Name.ToLower() == surveyName.ToLower());
+    // get questions for this survey
+    dbContext.Questions.ToList();
+
+    return survey;
+  }
+
+  public TakenSurveyModel GetTakenSurveyBySurveyTemplate(int templateId)
+  {
+    var survey = dbContext.TakenSurveys;
+    var surveyBySurveyTemplate = survey.Where(s => s.Id == templateId);
+
+    return surveyBySurveyTemplate.LastOrDefault();
+  }
+
+  public void SaveTakenSurvey(TakenSurveyModel takenSurvey)
+  {
+    dbContext.TakenSurveys.Add(takenSurvey);
+    dbContext.SaveChanges();
+
+    return;
+  }
 }

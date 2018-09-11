@@ -20,7 +20,7 @@ namespace SimpleSurvey.Controllers
             this._storageProxy = new StorageProxy(context);
         }
 
-        // Creating a survey
+        // Create a Survey Template
         [HttpPost]
         [Route("create")]
         public IActionResult CreateSurvey(SurveyDefinitionModel payload)
@@ -37,7 +37,7 @@ namespace SimpleSurvey.Controllers
                 // add multiple records with AddRange() instead of looping through list
                 surveyData.Questions.AddRange(payload.Questions);
 
-                this._storageProxy.createSurveyDef(surveyData);
+                this._storageProxy.CreateSurveyDef(surveyData);
 
                 return Ok(surveyData);
             }
@@ -51,12 +51,13 @@ namespace SimpleSurvey.Controllers
             }
         }
 
+        // Get All Survey Templates
         [HttpGet]
         public ActionResult<List<SurveyDefinitionModel>> GetAllSurveyResults()
         {
             try
             {
-                var surveys = this._storageProxy.getAllSurveyDefs();
+                var surveys = this._storageProxy.GetAllSurveyDefs();
 
                 return Ok(surveys);
             }
@@ -64,19 +65,19 @@ namespace SimpleSurvey.Controllers
             {
                 // TODO: Log error
                 Console.WriteLine("Exception: " + ex);
-                return BadRequest("Unable to get all surveys");
+                return BadRequest("Unable to get all surveys.");
             }
         }
 
         #region Get Surveys
-        //get survey template by id
+        // Get Survey Template by ID
         [HttpGet("id/{id}", Name = "GetSurveyTemplateById")]
         public ActionResult<SurveyDefinitionModel> GetSurveyTemplateById(int id)
         {
             try
             {
                 // call storage _storageProxy and set it to a local var
-                var survey = this._storageProxy.getSurveyDefById(id);
+                var survey = this._storageProxy.GetSurveyDefById(id);
 
                 if (survey == null)
                 {
@@ -89,20 +90,17 @@ namespace SimpleSurvey.Controllers
             {
                 // TODO: Log error
                 Console.WriteLine("Exception: " + ex);
-                return BadRequest($"Error getting this survey with id of {id}");
+                return BadRequest($"Error getting this survey with id of {id}.");
             }
         }
 
-        // get survey template by name
+        // Get Survey Template by Name
         [HttpGet("name/{name}", Name = "GetSurveyTemplateByName")]
         public ActionResult<SurveyDefinitionModel> GetSurveyTemplateByName(string name)
         {
             try
             {
-                // get survey by name
-                var survey = _context.SurveyTemplates.LastOrDefault(s => s.Name.ToLower() == name.ToLower());
-                // get questions for this survey - EF core weirdness
-                var questions = _context.Questions.ToList();
+                var survey = this._storageProxy.GetSurveyDefByName(name);
 
                 if (survey == null)
                 {
@@ -115,37 +113,22 @@ namespace SimpleSurvey.Controllers
             {
                 // TODO: Log error
                 Console.WriteLine("Exception: " + ex);
-                return BadRequest($"Error getting this survey with name of {name}");
+                return BadRequest($"Error getting this survey with name of {name}.");
             }
         }
         #endregion
 
         #region Get Taken Surveys
 
-        // Getting Results of a Survey
-        //   get surveyResults by name - sends most recent user TakenSurveyModel to client 
+        // Getting Results of a Taken Survey by Id  
         //   because we don't have a user, it's harder to manage the taken surveys
         [HttpGet("taken/id/{id}", Name = "GetTakenSurveyById")]
         public ActionResult<TakenSurveyModel> GetTakenSurveyById(int id)
         {
-
-            // this is the unique id for the taken survey (not related to template id)
-            var takenSurveyId = id;
-
             try
             {
                 // get survey by id
-                var survey = _context.TakenSurveys.Find(id);
-                // get questions for this survey
-                var questions = _context.Questions.ToList();
-
-                // get answers for this survey 
-                var surveyAnswers = new List<bool?>();
-
-                foreach (var question in questions)
-                {
-                    surveyAnswers.Add(question.Answer);
-                }
+                var survey = this._storageProxy.GetTakenSurveyById(id);
 
                 if (survey == null)
                 {
@@ -158,30 +141,17 @@ namespace SimpleSurvey.Controllers
             {
                 // TODO: Log error
                 Console.WriteLine("Exception: " + ex);
-                return BadRequest($"Error getting this survey with id of {id}");
+                return BadRequest($"Error getting this survey with id of {id}.");
             }
         }
 
-        [HttpGet("taken/id/{id}", Name = "GetTakenSurveyByTemplateId")]
-        public ActionResult<TakenSurveyModel> GetTakenSurveyByTemplateId(int templateid)
-        {
-            // get survey by id
-            var surveys = _context.TakenSurveys;
-            var surveysByTemplateType = surveys.Where(s => s.Id == templateid);
-
-            return surveysByTemplateType.LastOrDefault();
-        }
-
-        // Getting Results of a Survey (most recent survey by that name)
-        //   get surveyResults by name - sends most recent user TakenSurveyModel to client 
+        // Getting Results of a Taken Survey by Name (most recent survey by that name)
         [HttpGet("taken/name/{name}", Name = "GetTakenSurveyByName")]
         public ActionResult<TakenSurveyModel> GetTakenSurveyByName(string name)
         {
             try
-            { // get survey by id
-                var survey = _context.TakenSurveys.LastOrDefault(s => s.Name.ToLower() == name.ToLower());
-                // get questions for this survey
-                var questions = _context.Questions.ToList();
+            {
+                var survey = this._storageProxy.GetTakenSurveyByName(name);
 
                 if (survey == null)
                 {
@@ -194,12 +164,36 @@ namespace SimpleSurvey.Controllers
             {
                 // TODO: Log error
                 Console.WriteLine("Exception: " + ex);
-                return BadRequest($"Error getting this survey with name of {name}");
+                return BadRequest($"Error getting the latest survey with Name of {name}.");
+            }
+        }
+
+        // Getting Results of a Taken Survey by a certain Template (by ID) (most recent input)
+        // In the case that we would want to retrieve results of a certain survey template
+        [HttpGet("taken/templateid/{id}", Name = "GetTakenSurveyBySurveyTemplate")]
+        public ActionResult<TakenSurveyModel> GetTakenSurveyBySurveyTemplate(int templateId)
+        {
+            try
+            {
+                var survey = this._storageProxy.GetTakenSurveyBySurveyTemplate(templateId);
+
+                if (survey == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(survey);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Log error
+                Console.WriteLine("Exception: " + ex);
+                return BadRequest($"Error getting the latest survey with Template ID of {templateId}.");
             }
         }
         #endregion
 
-        // Insert taken survey into db
+        // Insert Taken Survey into DB
         [HttpPost]
         public IActionResult TakeSurvey(SurveyDefinitionModel payload)
         {
@@ -223,9 +217,7 @@ namespace SimpleSurvey.Controllers
                 // add multiple records with AddRange instead of looping through
                 takenSurvey.SurveyDefinitionModel.Questions.AddRange(payload.Questions);
 
-                //return this._storageProxy.CreateSurveyDefinition();
-                _context.TakenSurveys.Add(takenSurvey);
-                _context.SaveChanges();
+                this._storageProxy.SaveTakenSurvey(takenSurvey);
 
                 return Ok(takenSurvey);
             }
@@ -249,13 +241,4 @@ You will need to persist the data in some way.
 You DO NOT need to use a database, and the easier for us to run it the better :).
 But think about how you would want to do it in production and write up (one paragraph) how you would do it.
 
- */
-
-// ## QUESTIONS
-/*
-    - What is the different bt TakenSurvey and SurveyDefinition - how to identify when sending to server/client 
-    - when do you fill out the TakenSurvey DbSet?
-    - How does taking survey work - Used to making a GET to display the info, and POST to send the user data(input) - how do you combine into one endpoint?
-    - Implementing the Interface
-    - Implementing the SP
  */
